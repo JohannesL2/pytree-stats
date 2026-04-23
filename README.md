@@ -1,6 +1,6 @@
 # pytree-stats
 
-<img width="1008" height="946" alt="screenshot" src="https://github.com/user-attachments/assets/afccc1ae-e935-4f32-ae22-1fe169294009" width="400" alt="pytree-stats screenshot" />
+<img alt="screenshot" src="https://github.com/user-attachments/assets/afccc1ae-e935-4f32-ae22-1fe169294009" width="400" alt="pytree-stats screenshot" />
 
 
 A small Python command-line utility for generating directory tree listings. Use it to inspect folder hierarchies, share file structure snapshots, or compare directory layouts across projects.
