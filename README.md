@@ -1,4 +1,5 @@
 # pytree-stats
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 A small Python command-line utility for generating directory tree listings. Use it to inspect folder hierarchies, share file structure snapshots, or compare directory layouts across projects.
 
