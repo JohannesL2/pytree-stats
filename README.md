@@ -1,5 +1,7 @@
 # pytree-stats
 
+https://img.shields.io/badge/PRs-welcome-brightgreen.svg
+
 A small Python command-line utility for generating directory tree listings. Use it to inspect folder hierarchies, share file structure snapshots, or compare directory layouts across projects.
 
 <img alt="screenshot" src="https://github.com/user-attachments/assets/afccc1ae-e935-4f32-ae22-1fe169294009" width="400" alt="pytree-stats screenshot" />
@@ -22,6 +24,7 @@ A small Python command-line utility for generating directory tree listings. Use 
 
 - Python 3.7+
 - [Rich](https://github.com/Textualize/rich) library
+- [pyperclip](https://github.com/asweigart/pyperclip) library
 
 ### Installation
 
@@ -36,6 +39,7 @@ cd pytree-stats
 
 ```bash
 pip install rich
+pip install pyperclip
 ```
 
 3. Run the script

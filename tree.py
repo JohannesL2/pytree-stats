@@ -2,11 +2,13 @@ import os
 from pathlib import Path
 from rich.tree import Tree
 from rich.console import Console
+from rich.prompt import Confirm
 from rich.filesize import decimal
 from rich.markup import escape
 from rich.text import Text
 from collections import Counter
 from rich.table import Table
+import pyperclip
 
 IGNORE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", ".DS_Store"}
 
@@ -77,7 +79,7 @@ def print_summary(file_counts: Counter, console: Console):
     console.print(tb_obj)
 
 def main():
-    c = Console()
+    c = Console(record=True)
     root = Path.cwd()  # Run in current folder
     all_extensions = []
 
@@ -94,6 +96,18 @@ def main():
 
     c.print(t_obj)
     print_summary(file_counts, c)
+
+    # Copy the tree to clipboard
+    print("")
+    if Confirm.ask("Do you want to copy the tree structure to clipboard?"):
+        try:
+            tree_text = c.export_text()
+            pyperclip.copy(tree_text)
+            c.print("[bold green] Copied to clipboard![/bold green]")
+        except Exception as e:
+            c.print(f"[bold red] Failed to copy to clipboard: {e}[/bold red]")
+    else:
+        c.print("[yellow]Skip copying to clipboard.[/yellow]")        
 
 if __name__ == "__main__":
     main()
