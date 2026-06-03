@@ -19,7 +19,7 @@ def generate_tree(directory: Path, node: Tree):
 
     for path in paths:
         # Ignore hidden maps like .git .gitignore
-        if path.name.startswith("."):
+        if path.name.startswith(".") or path.name in IGNORE_DIRS:
             continue
 
         if path.is_dir():
