@@ -9,6 +9,7 @@ from rich.text import Text
 from collections import Counter
 from rich.table import Table
 import pyperclip
+import argparse
 
 IGNORE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", ".DS_Store"}
 
@@ -79,8 +80,22 @@ def print_summary(file_counts: Counter, console: Console):
     console.print(tb_obj)
 
 def main():
+    parser = argparse.ArgumentParser(description="Generate a directory tree and file statistics.")
+    parser.add_argument("path", nargs="?", default=Path.cwd(), type=Path, help="Directory to scan (defaults to current working directory)")
+
+    args = parser.parse_args()
+
+    root = args.path.resolve()
+
+    if not root.exists():
+        print(f"Error: '{root}' does not exist.")
+        return
+
+    if not root.is_dir():
+        print(f"Error: '{root}' is not a directory.")
+        return
+
     c = Console(record=True)
-    root = Path.cwd()  # Run in current folder
     all_extensions = []
 
     def collect_stats(directory: Path):
