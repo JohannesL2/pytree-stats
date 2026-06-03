@@ -50,6 +50,12 @@ pip install -r requirements.txt
 python tree.py
 ```
 
+Ignore additional project-specific directories:
+
+```bash
+python tree.py --ignore dist,build
+```
+
 ## Contributing
 
 Contributions are welcome and greatly appreciated! Here is how you can help:
