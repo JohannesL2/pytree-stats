@@ -82,7 +82,7 @@ def print_summary(file_counts: Counter, console: Console):
 def main():
     parser = argparse.ArgumentParser(description="Generate a directory tree and file statistics.")
     parser.add_argument("path", nargs="?", default=Path.cwd(), type=Path, help="Directory to scan (defaults to current working directory)")
-    parser.add_argument("-i", "--ignore", default="", help="List of directories to ignore (seperate by comma))
+    parser.add_argument("-i", "--ignore", default="", help="List of directories to ignore (seperate by comma)")
 
     args = parser.parse_args()
 
