@@ -11,6 +11,7 @@ from rich.table import Table
 import pyperclip
 import argparse
 
+HEADING = "## Project Structure"
 IGNORE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", ".DS_Store"}
 
 def generate_tree(directory: Path, node: Tree):
@@ -65,7 +66,7 @@ def generate_tree(directory: Path, node: Tree):
 
 # Summarize and count files
 
-def print_summary(file_counts: Counter, console: Console):
+def print_summary(file_counts: Counter):
     """Creates and write a table with file statistics."""
     tb_obj = Table(title="File statistics", title_style="bold magenta", show_header=True, header_style="bold cyan")
 
@@ -76,8 +77,10 @@ def print_summary(file_counts: Counter, console: Console):
         label = ext if ext else "No extension"
         tb_obj.add_row(label, str(count))
     
-    console.print("\n")
-    console.print(tb_obj)
+    return tb_obj
+
+
+
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a directory tree and file statistics.")
@@ -108,9 +111,15 @@ def main():
 
     t_obj = Tree(f":open_file_folder: [bold cyan]{root.name}[/bold cyan]", guide_style="bright_black")
     generate_tree(root, t_obj)
-
-    c.print(t_obj)
-    print_summary(file_counts, c)
+    
+    # Capture tree as string
+    tree_console = Console(record=True)
+    tree_console.print(t_obj)
+    tree_text_only = tree_console.export_text()
+    print("\n")
+    summary_console = Console(record=True)
+    summary_console.print(print_summary(file_counts))
+    summary_text_only = summary_console.export_text()
 
     # Copy the tree to clipboard
     print("")
@@ -123,6 +132,30 @@ def main():
             c.print(f"[bold red] Failed to copy to clipboard: {e}[/bold red]")
     else:
         c.print("[yellow]Skip copying to clipboard.[/yellow]")        
+
+    # Download as a markdown file
+
+    
+    print("")
+    if Confirm.ask("Do you want to download the tree structure as a Markdown?"):
+        try:
+            tree_text = c.export_text()
+            file_name = input("Name your file: ")
+            print("")
+            while not Confirm.ask(f"Are you sure you want to name the file {file_name}?"):
+                file_name = input("Name your file: ")
+                print("")
+            if ".md" not in file_name:
+                file_name += ".md"
+            with open(file_name, "w", encoding="utf-8") as f:
+                f.write(f"{HEADING}\n")
+            
+                f.write(f"```text\n{tree_text_only}```\n\n")
+                
+                f.write(f"```{summary_text_only}```")
+
+        except Exception as e:
+            c.print("[yellow]Skip copying to clipboard.[/yellow]")
 
 if __name__ == "__main__":
     main()
