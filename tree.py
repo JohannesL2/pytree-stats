@@ -13,14 +13,14 @@ import argparse
 
 IGNORE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", ".DS_Store"}
 
-def generate_tree(directory: Path, node: Tree):
+def generate_tree(directory: Path, node: Tree, ignore_dirs: set):
     """Function that builds a file structure tree"""
     # Sort folders first then files
     paths = sorted(Path(directory).iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
 
     for path in paths:
         # Ignore hidden maps like .git .gitignore
-        if path.name.startswith(".") or path.name in IGNORE_DIRS:
+        if path.name.startswith(".") or path.name in ignore_dirs:
             continue
 
         if path.is_dir():
@@ -30,7 +30,7 @@ def generate_tree(directory: Path, node: Tree):
                 f"[bold blue]📂 {escape(path.name)}[/bold blue]",
                 guide_style="bright_blue"
             )
-            generate_tree(path, branch)
+            generate_tree(path, branch, ignore_dirs)
         else:
             # Handle files with icons
             text_filename = Text(path.name)
@@ -82,8 +82,12 @@ def print_summary(file_counts: Counter, console: Console):
 def main():
     parser = argparse.ArgumentParser(description="Generate a directory tree and file statistics.")
     parser.add_argument("path", nargs="?", default=Path.cwd(), type=Path, help="Directory to scan (defaults to current working directory)")
+    parser.add_argument("-i", "--ignore", default="", help="List of directories to ignore (seperate by comma))
 
     args = parser.parse_args()
+
+    user_ignores = {item.strip() for item in args.ignore.split(",") if item.strip()}
+    ignore_dirs = IGNORE_DIRS | user_ignores
 
     root = args.path.resolve()
 
@@ -100,14 +104,14 @@ def main():
 
     def collect_stats(directory: Path):
         for path in directory.rglob("*"):
-            if path.is_file() and not any(part.startswith('.') or part in IGNORE_DIRS for part in path.parts):
+            if path.is_file() and not any(part.startswith('.') or part in ignore_dirs for part in path.parts):
                 all_extensions.append(path.suffix.lower())
     
     collect_stats(root)
     file_counts = Counter(all_extensions)
 
     t_obj = Tree(f":open_file_folder: [bold cyan]{root.name}[/bold cyan]", guide_style="bright_black")
-    generate_tree(root, t_obj)
+    generate_tree(root, t_obj, ignore_dirs)
 
     c.print(t_obj)
     print_summary(file_counts, c)
