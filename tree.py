@@ -139,23 +139,22 @@ def main():
     print("")
     if Confirm.ask("Do you want to download the tree structure as a Markdown?"):
         try:
-            tree_text = c.export_text()
             file_name = input("Name your file: ")
             print("")
             while not Confirm.ask(f"Are you sure you want to name the file {file_name}?"):
                 file_name = input("Name your file: ")
                 print("")
-            if ".md" not in file_name:
+            if Path(file_name).suffix.lower() != ".md":
                 file_name += ".md"
             with open(file_name, "w", encoding="utf-8") as f:
                 f.write(f"{HEADING}\n")
             
-                f.write(f"```text\n{tree_text_only}```\n\n")
+                f.write(f"```text\n{tree_text_only}\n```\n\n")
                 
-                f.write(f"```{summary_text_only}```")
+                f.write(f"```{summary_text_only}\n```\n")
 
         except Exception as e:
-            c.print("[yellow]Skip copying to clipboard.[/yellow]")
+            c.print("[yellow]Skip downloading to Markdown")
 
 if __name__ == "__main__":
     main()
