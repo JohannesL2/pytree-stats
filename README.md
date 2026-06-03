@@ -1,6 +1,10 @@
 # pytree-stats
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
+<p align="center">
+<img width="128" height="128" src="https://github.com/user-attachments/assets/4b45c09f-1aa2-4277-a760-94b916b9e829" />
+</p>
+
 A small Python command-line utility for generating directory tree listings. Use it to inspect folder hierarchies, share file structure snapshots, or compare directory layouts across projects.
 
 <img alt="screenshot" src="https://github.com/user-attachments/assets/afccc1ae-e935-4f32-ae22-1fe169294009" width="400" alt="pytree-stats screenshot" />
