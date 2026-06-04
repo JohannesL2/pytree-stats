@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from rich.tree import Tree
+from rich.tree import Tree 
 from rich.console import Console
 from rich.prompt import Confirm
 from rich.filesize import decimal
@@ -79,9 +79,6 @@ def print_summary(file_counts: Counter):
     
     return tb_obj
 
-
-
-
 def main():
     parser = argparse.ArgumentParser(description="Generate a directory tree and file statistics.")
     parser.add_argument("path", nargs="?", default=Path.cwd(), type=Path, help="Directory to scan (defaults to current working directory)")
@@ -106,15 +103,23 @@ def main():
     all_extensions = []
 
     def collect_stats(directory: Path):
+        total_size = 0
+        total_folders = 1
         for path in directory.rglob("*"):
-            if path.is_file() and not any(part.startswith('.') or part in ignore_dirs for part in path.parts):
+            if any(part.startswith('.') or part in ignore_dirs for part in path.parts):
+                continue
+            if path.is_dir():
+                total_folders += 1
+            elif path.is_file():
                 all_extensions.append(path.suffix.lower())
+                total_size += path.stat().st_size
+        return total_size, total_folders
     
-    collect_stats(root)
+    total_size, total_folders = collect_stats(root)
+    total_files = len(all_extensions)
     file_counts = Counter(all_extensions)
 
     t_obj = Tree(f":open_file_folder: [bold cyan]{root.name}[/bold cyan]", guide_style="bright_black")
-    
     generate_tree(root, t_obj, ignore_dirs)
     
     # Capture tree as string
@@ -122,10 +127,23 @@ def main():
     tree_console.print(t_obj)
     tree_text_only = tree_console.export_text()
     print("\n")
+    
+    # Capture summary table and totals for markdown export
+    summary_table = print_summary(file_counts)
     summary_console = Console(record=True)
-    summary_console.print(print_summary(file_counts))
+    summary_console.print(summary_table)
+    summary_console.print("\n")
+    summary_console.print(f"[bold cyan]Total files scanned:[/bold cyan] {total_files}")
+    summary_console.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
+    summary_console.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size)}")
     summary_text_only = summary_console.export_text()
     
+    # Print to the terminal screen
+    c.print(summary_table)
+    c.print("\n")
+    c.print(f"[bold cyan]Total files scanned:[/bold cyan] {total_files}")
+    c.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
+    c.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size)}")
     # Copy the tree to clipboard
     print("")
     if Confirm.ask("Do you want to copy the tree structure to clipboard?"):
