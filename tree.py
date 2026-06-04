@@ -9,17 +9,19 @@ from rich.text import Text
 from collections import Counter
 from rich.table import Table
 import pyperclip
+import argparse
 
+HEADING = "## Project Structure"
 IGNORE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", ".DS_Store"}
 
-def generate_tree(directory: Path, node: Tree):
+def generate_tree(directory: Path, node: Tree, ignore_dirs: set):
     """Function that builds a file structure tree"""
     # Sort folders first then files
     paths = sorted(Path(directory).iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
 
     for path in paths:
         # Ignore hidden maps like .git .gitignore
-        if path.name.startswith(".") or path.name in IGNORE_DIRS:
+        if path.name.startswith(".") or path.name in ignore_dirs:
             continue
 
         if path.is_dir():
@@ -29,7 +31,7 @@ def generate_tree(directory: Path, node: Tree):
                 f"[bold blue]📂 {escape(path.name)}[/bold blue]",
                 guide_style="bright_blue"
             )
-            generate_tree(path, branch)
+            generate_tree(path, branch, ignore_dirs)
         else:
             # Handle files with icons
             text_filename = Text(path.name)
@@ -64,7 +66,7 @@ def generate_tree(directory: Path, node: Tree):
 
 # Summarize and count files
 
-def print_summary(file_counts: Counter, console: Console, total_files: int, total_folders: int, total_size_bytes: int):
+def print_summary(file_counts: Counter):
     """Creates and write a table with file statistics."""
     tb_obj = Table(title="File statistics", title_style="bold magenta", show_header=True, header_style="bold cyan")
 
@@ -75,23 +77,36 @@ def print_summary(file_counts: Counter, console: Console, total_files: int, tota
         label = ext if ext else "No extension"
         tb_obj.add_row(label, str(count))
     
-    console.print("\n")
-    console.print(tb_obj)
-    console.print("\n")
-    console.print(f"[bold cyan]Total files scanned:[/bold cyan] {total_files}")
-    console.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
-    console.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size_bytes)}")
+    return tb_obj
 
 def main():
+    parser = argparse.ArgumentParser(description="Generate a directory tree and file statistics.")
+    parser.add_argument("path", nargs="?", default=Path.cwd(), type=Path, help="Directory to scan (defaults to current working directory)")
+    parser.add_argument("-i", "--ignore", default="", help="List of directories to ignore (seperate by comma)")
+
+    args = parser.parse_args()
+
+    user_ignores = {item.strip() for item in args.ignore.split(",") if item.strip()}
+    ignore_dirs = IGNORE_DIRS | user_ignores
+
+    root = args.path.resolve()
+
+    if not root.exists():
+        print(f"Error: '{root}' does not exist.")
+        return
+
+    if not root.is_dir():
+        print(f"Error: '{root}' is not a directory.")
+        return
+
     c = Console(record=True)
-    root = Path.cwd()  # Run in current folder
     all_extensions = []
 
     def collect_stats(directory: Path):
         total_size = 0
         total_folders = 1
         for path in directory.rglob("*"):
-            if any(part.startswith('.') or part in IGNORE_DIRS for part in path.parts):
+            if any(part.startswith('.') or part in ignore_dirs for part in path.parts):
                 continue
             if path.is_dir():
                 total_folders += 1
@@ -105,11 +120,30 @@ def main():
     file_counts = Counter(all_extensions)
 
     t_obj = Tree(f":open_file_folder: [bold cyan]{root.name}[/bold cyan]", guide_style="bright_black")
-    generate_tree(root, t_obj)
-
-    c.print(t_obj)
-    print_summary(file_counts, c, total_files, total_folders, total_size)
-
+    generate_tree(root, t_obj, ignore_dirs)
+    
+    # Capture tree as string
+    tree_console = Console(record=True)
+    tree_console.print(t_obj)
+    tree_text_only = tree_console.export_text()
+    print("\n")
+    
+    # Capture summary table and totals for markdown export
+    summary_table = print_summary(file_counts)
+    summary_console = Console(record=True)
+    summary_console.print(summary_table)
+    summary_console.print("\n")
+    summary_console.print(f"[bold cyan]Total files scanned:[/bold cyan] {total_files}")
+    summary_console.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
+    summary_console.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size)}")
+    summary_text_only = summary_console.export_text()
+    
+    # Print to the terminal screen
+    c.print(summary_table)
+    c.print("\n")
+    c.print(f"[bold cyan]Total files scanned:[/bold cyan] {total_files}")
+    c.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
+    c.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size)}")
     # Copy the tree to clipboard
     print("")
     if Confirm.ask("Do you want to copy the tree structure to clipboard?"):
@@ -121,6 +155,29 @@ def main():
             c.print(f"[bold red] Failed to copy to clipboard: {e}[/bold red]")
     else:
         c.print("[yellow]Skip copying to clipboard.[/yellow]")        
+
+    # Download as a markdown file
+
+    
+    print("")
+    if Confirm.ask("Do you want to download the tree structure as a Markdown?"):
+        try:
+            file_name = input("Name your file: ")
+            print("")
+            while not Confirm.ask(f"Are you sure you want to name the file {file_name}?"):
+                file_name = input("Name your file: ")
+                print("")
+            if Path(file_name).suffix.lower() != ".md":
+                file_name += ".md"
+            with open(file_name, "w", encoding="utf-8") as f:
+                f.write(f"{HEADING}\n")
+            
+                f.write(f"```text\n{tree_text_only}\n```\n\n")
+                
+                f.write(f"```{summary_text_only}\n```\n")
+
+        except Exception as e:
+            c.print("[yellow]Skip downloading to Markdown")
 
 if __name__ == "__main__":
     main()
