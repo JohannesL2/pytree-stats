@@ -39,7 +39,7 @@ def handle_markdown(summary_text_only:str, tree_text_only:str) ->None:
                 
                 f.write(f"```text\n{tree_text_only}\n```\n\n")
                     
-                f.write(f"```{summary_text_only}\n```\n")
+                f.write(f"```text\n{summary_text_only}\n```\n")
 
         except Exception as e:
             console.print(f"[bold red] Failed to download the markdown file: {e}[/bold red]")
