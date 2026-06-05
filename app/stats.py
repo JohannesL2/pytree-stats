@@ -3,10 +3,11 @@ from typing import Tuple
 from pathlib import Path
 from collections import Counter
 
-all_extensions = []
+
 
 def collect_stats(directory: Path, ignore: set)->Tuple[int,int,list]:
     """Calculates total_folders and total_size"""
+    all_extensions = []
     total_size = 0
     total_folders = 1
     for path in directory.rglob("*"):
