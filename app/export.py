@@ -9,12 +9,12 @@ from app.global_ import HEADING
 
 console = Console(record=True)
 
-def handle_copy() -> None:
+def handle_copy(tree_text) -> None:
     """Ask if the user want the information copy to his/her cliboard"""
     print("")
     if Confirm.ask("Do you want to copy the tree structure to clipboard?"):
         try:
-            tree_text = console.export_text()
+            
             pyperclip.copy(tree_text)
             console.print("[bold green] Copied to clipboard![/bold green]")
         except Exception as e:

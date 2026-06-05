@@ -45,7 +45,7 @@ def print_to_terminal(root, total_files, file_counts, total_size, total_folders,
     summary_console.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
     summary_console.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size)}")
     summary_text_only = summary_console.export_text()
-    handle_copy()
+    handle_copy(tree_text_only)
     handle_markdown(summary_text_only, tree_text_only)
 
 
