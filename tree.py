@@ -14,10 +14,14 @@ import argparse
 HEADING = "## Project Structure"
 IGNORE_DIRS = {".git", "__pycache__", "node_modules", "venv", ".venv", ".DS_Store"}
 
-def generate_tree(directory: Path, node: Tree, ignore_dirs: set):
+def generate_tree(directory: Path, node: Tree, ignore_dirs: set, console: Console):
     """Function that builds a file structure tree"""
     # Sort folders first then files
-    paths = sorted(Path(directory).iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
+    try:
+        paths = sorted(Path(directory).iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
+    except PermissionError:
+        console.print(f"[yellow]WARNING:[/yellow] Skipping directory (permission denied): {directory}")
+        return
 
     for path in paths:
         # Ignore hidden maps like .git .gitignore
@@ -31,7 +35,7 @@ def generate_tree(directory: Path, node: Tree, ignore_dirs: set):
                 f"[bold blue]📂 {escape(path.name)}[/bold blue]",
                 guide_style="bright_blue"
             )
-            generate_tree(path, branch, ignore_dirs)
+            generate_tree(path, branch, ignore_dirs, console)
         else:
             # Handle files with icons
             text_filename = Text(path.name)
@@ -59,7 +63,11 @@ def generate_tree(directory: Path, node: Tree, ignore_dirs: set):
                 icon = "📄"
 
             # Add file size for convenience
-            file_size = decimal(path.stat().st_size)
+            try:
+                file_size = decimal(path.stat().st_size)
+            except PermissionError:
+                console.print(f"[yellow]WARNING:[/yellow] Skipping file (permission denied): {path}")
+                continue
             text_filename.append(f" ({file_size})", "italic white")
             
             node.add(Text(f"{icon} ") + text_filename)
@@ -105,14 +113,21 @@ def main():
     def collect_stats(directory: Path):
         total_size = 0
         total_folders = 1
-        for path in directory.rglob("*"):
-            if any(part.startswith('.') or part in ignore_dirs for part in path.parts):
-                continue
-            if path.is_dir():
-                total_folders += 1
-            elif path.is_file():
-                all_extensions.append(path.suffix.lower())
-                total_size += path.stat().st_size
+        try:
+            for path in directory.rglob("*"):
+                try:
+                    if any(part.startswith('.') or part in ignore_dirs for part in path.parts):
+                        continue
+                    if path.is_dir():
+                        total_folders += 1
+                    elif path.is_file():
+                        all_extensions.append(path.suffix.lower())
+                        total_size += path.stat().st_size
+                except PermissionError:
+                    c.print(f"[yellow]WARNING:[/yellow] Skipping path (permission denied): {path}")
+        except PermissionError:
+            c.print(f"[yellow]WARNING:[/yellow] Skipping directory (permission denied): {directory}")
+
         return total_size, total_folders
     
     total_size, total_folders = collect_stats(root)
@@ -120,7 +135,7 @@ def main():
     file_counts = Counter(all_extensions)
 
     t_obj = Tree(f":open_file_folder: [bold cyan]{root.name}[/bold cyan]", guide_style="bright_black")
-    generate_tree(root, t_obj, ignore_dirs)
+    generate_tree(root, t_obj, ignore_dirs, c)
     
     # Capture tree as string
     tree_console = Console(record=True)
