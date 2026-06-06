@@ -152,13 +152,7 @@ def main():
     summary_console.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
     summary_console.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size)}")
     summary_text_only = summary_console.export_text()
-    
-    # Print to the terminal screen
-    c.print(summary_table)
-    c.print("\n")
-    c.print(f"[bold cyan]Total files scanned:[/bold cyan] {total_files}")
-    c.print(f"[bold cyan]Total folders scanned:[/bold cyan] {total_folders}")
-    c.print(f"[bold cyan]Total size:[/bold cyan] {decimal(total_size)}")
+
     # Copy the tree to clipboard
     print("")
     if Confirm.ask("Do you want to copy the tree structure to clipboard?"):
