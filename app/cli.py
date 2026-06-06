@@ -11,7 +11,7 @@ from rich.table import Table
 from app.core import generate_tree
 from app.export import handle_markdown, handle_copy
 
-console = Console(record=True)
+
 
 def return_summary(file_counts: Counter) -> Table:
     """Creates and returns a table with file statistics."""

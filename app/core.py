@@ -5,9 +5,9 @@ from rich.tree import Tree
 from rich.filesize import decimal
 from rich.markup import escape
 from rich.text import Text
+from rich.console import Console
 
-
-
+console = Console(record=True)
 def generate_tree(directory: Path, node: Tree, ignore_dirs: set)->None:
     """Function that builds a file structure tree"""
     # Sort folders first then files
@@ -53,8 +53,16 @@ def generate_tree(directory: Path, node: Tree, ignore_dirs: set)->None:
                 icon = "📄"
 
             # Add file size for convenience
-            file_size = decimal(path.stat().st_size)
+            try:
+                file_size = decimal(path.stat().st_size)
+            except PermissionError:
+                console.print(f"[yellow]WARNING:[/yellow] Skipping file (permission denied): {path}")
+                continue
+            
             text_filename.append(f" ({file_size})", "italic white")
+
+            # Add file size for convenience
+            
             
             node.add(Text(f"{icon} ") + text_filename)
 
