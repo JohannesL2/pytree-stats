@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytree-stats"
+version = "1.0.0"
+description = "Analyze files and folders fast"
+readme = "README.md"
+requires-python = ">=3.8"
+
+authors = [
+    { name = "" }
+]
+
+dependencies = [
+    "rich",
+    "pyperclip"
+]
+
+[project.scripts]
+pytree-stats = "main:main"
