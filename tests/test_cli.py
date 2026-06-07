@@ -97,7 +97,14 @@ class TestArgumentParsing:
 
         _, ignore_dirs = mock_calc.call_args[0]
         mock_print.assert_called_once_with(
-            tmp_path.resolve(), 1, file_counts, 16, 1, ignore_dirs
+            tmp_path.resolve(),
+            1,
+            file_counts,
+            16,
+            1,
+            ignore_dirs,
+            copy_output=False,
+            markdown_output=False,
         )
 
 
@@ -124,6 +131,39 @@ class TestUserInput:
             print_to_terminal(tmp_path, 1, Counter({".py": 1}), 1, 1, set())
 
         mock_copy.assert_not_called()
+
+    def test_print_to_terminal_copy_output_skips_prompts(self, monkeypatch, tmp_path: Path):
+        (tmp_path / "a.py").write_text("1")
+
+        with patch("app.export.Confirm.ask") as mock_confirm, patch("app.export.pyperclip.copy") as mock_copy:
+            print_to_terminal(tmp_path, 1, Counter({".py": 1}), 1, 1, set(), copy_output=True)
+
+        mock_confirm.assert_not_called()
+        mock_copy.assert_called_once()
+        copied_text = mock_copy.call_args[0][0]
+        assert "a.py" in copied_text
+        assert "Total files scanned:" in copied_text
+
+    def test_print_to_terminal_markdown_output_skips_prompts(self, monkeypatch, tmp_path: Path):
+        (tmp_path / "a.py").write_text("1")
+        monkeypatch.chdir(tmp_path)
+
+        with patch("app.export.Confirm.ask") as mock_confirm:
+            print_to_terminal(tmp_path, 1, Counter({".py": 1}), 1, 1, set(), markdown_output=True)
+
+        mock_confirm.assert_not_called()
+        content = (tmp_path / "pytree-stats.md").read_text(encoding="utf-8")
+        assert content.startswith(HEADING)
+        assert "a.py" in content
+        assert "Total files scanned:" in content
+
+    def test_print_to_terminal_markdown_output_uses_filename(self, monkeypatch, tmp_path: Path):
+        (tmp_path / "a.py").write_text("1")
+        monkeypatch.chdir(tmp_path)
+
+        print_to_terminal(tmp_path, 1, Counter({".py": 1}), 1, 1, set(), markdown_output="report")
+
+        assert (tmp_path / "report.md").exists()
 
     def test_print_to_terminal_writes_markdown_when_user_confirms(self, monkeypatch, tmp_path: Path):
         (tmp_path / "a.py").write_text("1")
