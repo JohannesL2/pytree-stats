@@ -15,7 +15,8 @@ authors = [
 
 dependencies = [
     "rich",
-    "pyperclip"
+    "pyperclip",
+    "pytest"
 ]
 
 [project.scripts]
