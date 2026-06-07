@@ -20,3 +20,6 @@ dependencies = [
 
 [project.scripts]
 pytree-stats = "main:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
