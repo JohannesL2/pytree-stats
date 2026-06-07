@@ -1,0 +1,9 @@
+site_name: Pytree Documentation
+nav:
+  - Home: README.md
+  - About: about.md
+  - Contributors: contribute.md
+theme:
+  name: material
+  locale: en
+  including_sidebar: true

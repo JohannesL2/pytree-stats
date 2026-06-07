@@ -1,2 +1,4 @@
 rich>=13.0.0
 pyperclip>=1.8.0
+mkdocs>=1.6.1
+mkdocs-material
