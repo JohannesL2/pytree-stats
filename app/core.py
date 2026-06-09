@@ -11,13 +11,24 @@ console = Console(record=True)
 
 def generate_tree(directory: Path, node: Tree, ignore_dirs: set) -> None:
     """Function that builds a file structure tree"""
+    accessible_entries = []
+    
     try:
-        # Sort folders first, then files. 
-        # If any file causes a PermissionError here, the try-except block handles it.
-        entries = sorted(Path(directory).iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
+        # Step 1: Safely gather entries we have permission to touch
+        for path in Path(directory).iterdir():
+            try:
+                # Triggers a stat call via is_file() to safely check permissions early
+                path.is_file()
+                accessible_entries.append(path)
+            except PermissionError:
+                # Skip the restricted file silently and continue with the rest
+                continue
     except PermissionError:
-        # If we don't have permission to read the directory itself, abort immediately
+        # If the parent directory itself is completely restricted
         return
+
+    # Step 2: Safe sorting (folders first, then files) on accessible files only
+    entries = sorted(accessible_entries, key=lambda p: (p.is_file(), p.name.lower()))
 
     for path in entries:
         # Ignore hidden files/folders and ignored directories
@@ -25,7 +36,6 @@ def generate_tree(directory: Path, node: Tree, ignore_dirs: set) -> None:
             continue
 
         try:
-            # Check if it's a directory or a file
             is_directory = path.is_dir()
             
             if is_directory:
@@ -68,5 +78,4 @@ def generate_tree(directory: Path, node: Tree, ignore_dirs: set) -> None:
                 node.add(Text(f"{icon} ") + text_filename)
 
         except PermissionError:
-            # Skip the file/folder silently if access is denied during processing
             continue
