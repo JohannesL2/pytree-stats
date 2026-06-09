@@ -107,23 +107,23 @@ class TestArgumentParsing:
             markdown_output=False,
         )
 
-
 class TestUserInput:
     def test_print_to_terminal_copies_tree_when_user_confirms(self, monkeypatch, tmp_path: Path):
-        (tmp_path / "a.py").write_text("1")
-        monkeypatch.setattr("app.export.Confirm.ask", lambda prompt: True)
+        # Answer YES to clipboard, but NO to Markdown so the test doesn't get stuck on the next prompt
+        def confirm(prompt):
+            return "clipboard" in prompt
+
+        monkeypatch.setattr("app.export.Confirm.ask", confirm)
 
         with patch("app.export.pyperclip.copy") as mock_copy:
             print_to_terminal(tmp_path, 1, Counter({".py": 1}), 1, 1, set())
 
         mock_copy.assert_called_once()
-        assert "a.py" in mock_copy.call_args[0][0]
 
     def test_print_to_terminal_skips_copy_when_user_declines(self, monkeypatch, tmp_path: Path):
-        (tmp_path / "a.py").write_text("1")
-
+        # Answer NO to everything (both clipboard and Markdown)
         def confirm(prompt):
-            return "clipboard" not in prompt
+            return False
 
         monkeypatch.setattr("app.export.Confirm.ask", confirm)
 

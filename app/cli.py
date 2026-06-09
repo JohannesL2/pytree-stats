@@ -40,17 +40,21 @@ def print_to_terminal(
     markdown_output: bool = False,
 ):
     """handles the printing of all text in the Terminal"""
-    if _console is None:
-        _console = Console(record=True)
+    # Skapa en helt egen, isolerad konsol för trädet
+    tree_console = Console(record=True)
 
     t_obj = Tree(f":open_file_folder: [bold cyan]{root.name}[/bold cyan]", guide_style="bright_black")
     generate_tree(root, t_obj, ignore)
         
-    # Capture tree as string
-    _console.print(t_obj)
-    tree_text_only = _console.export_text()
+    # Capture tree as string (Helt isolerat i tree_console)
+    tree_console.print(t_obj)
+    tree_text_only = tree_console.export_text()
     print("\n")
-    # Print Summary to Terminal
+    
+    # Skapa eller använd konsolen för sammanfattningen
+    if _console is None:
+        _console = Console(record=True)
+
     sum_console = return_summary(file_counts)
     _console.print(sum_console)
     _console.print("\n")
@@ -71,5 +75,3 @@ def print_to_terminal(
 
     handle_copy(tree_text_only, _console)
     handle_markdown(summary_text_only, tree_text_only, _console)
-
-    

@@ -126,13 +126,11 @@ class TestGenerateTree:
         blocked_file.write_text("no access")
 
         real_stat = Path.stat
-        stat_calls = {}
 
+        # We mock Path.stat to immediately raise PermissionError for the blocked file
         def stat_with_denial(self, follow_symlinks=True):
             if self == blocked_file:
-                stat_calls[self] = stat_calls.get(self, 0) + 1
-                if stat_calls[self] > 2:
-                    raise PermissionError
+                raise PermissionError
             return real_stat(self, follow_symlinks=follow_symlinks)
 
         with patch.object(Path, "stat", stat_with_denial):
