@@ -1,35 +1,43 @@
 # pytree-stats
+
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)
+
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 <p align="center">
-<img width="128" height="128" src="https://github.com/user-attachments/assets/4b45c09f-1aa2-4277-a760-94b916b9e829" />
+
+<img width="128" height="128" src="https://github.com/user-attachments/assets/4b45c09f-1aa2-4277-a760-94b916b9e829" alt="pytree-stats logo" />
+
 </p>
 
-A small Python command-line utility for generating directory tree listings. Use it to inspect folder hierarchies, share file structure snapshots, or compare directory layouts across projects.
+A fast, lightweight Python command-line utility for generating directory tree listings with statistics. Use it to inspect folder hierarchies, share structured snapshots with LLMs (ChatGPT/Claude), or document project layouts.
 
-<img alt="screenshot" src="https://github.com/user-attachments/assets/afccc1ae-e935-4f32-ae22-1fe169294009" width="400" alt="pytree-stats screenshot" />
+<p align="center">
 
-## What the project does
+<img alt="pytree-stats screenshot" src="https://github.com/user-attachments/assets/afccc1ae-e935-4f32-ae22-1fe169294009" width="500" />
 
-`pytree-stats` reads a filesystem path and prints a tree-style view of the directory contents. It is designed as a lightweight, easy-to-run Python script that works without complex setup.
+</p>
 
-## Why the project is useful
+## Features
 
-- Quickly inspect folder structure from the terminal
-- **AI-Friendly:** Generates structured output that is easy for LLMs to parse.
-- Useful for documentation, code reviews, and project audits
-- Works cross-platform with Python
-- Simple, no heavy dependencies
+- **Global CLI Utility:** Run `pytree` from any directory in your terminal.
+- **AI & LLM Friendly:** Generates structured output easy for LLMs to parse and understand.
+- **Smart Ignore Defaults:** Automatically skips common noise directories like `.git`, `node_modules`, `.venv`, and `__pycache__`.
+- **Custom Filtering:** Pass your own ignore rules via `-i` / `--ignore`.
+- **Export Capabilities:** Instantly copy results to clipboard or export directly to a Markdown file.
+- **Rich Terminal Output:** Colored syntax and clean directory stats powered by [Rich](https://github.com/Textualize/rich).
 
-## Get started
+---
+
+## Installation & Setup
 
 ### Prerequisites
 
-- Python 3.7+
-- [Rich](https://github.com/Textualize/rich) library
-- [pyperclip](https://github.com/asweigart/pyperclip) library
+- Python 3.8+
 
-### Installation
+### Install as a System-Wide CLI
 
 1. Clone the repository:
 
@@ -38,24 +46,61 @@ git clone https://github.com/JohannesL2/pytree-stats.git
 cd pytree-stats
 ```
 
-2. Install dependencies using the requirements file:
+Install locally in editable mode:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
-3. Run the script
+Now you can use the pytree command from any directory on your computer!
+
+## Usage
 
 ```bash
-python tree.py
+# Scan the current working directory
+pytree
+
+# Scan a specific directory
+pytree /path/to/project
+
+# Ignore custom subdirectories (comma-separated)
+pytree -i "dist,build,custom_folder"
+
+# Export the output directly to a Markdown file
+pytree --markdown output.md
 ```
 
 ## Contributing
 
-Contributions are welcome and greatly appreciated! Here is how you can help:
+Contributions are welcome and greatly appreciated!
 
-1. Look at the open issues labeled [good first issue](https://github.com/JohannesL2/pytree-stats/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
-2. Fork the repository and create a new branch for your feature or bugfix.
-3. Open a Pull Request (PR) and describe your changes.
+### Fork & Clone
 
-Thanks for helping make `pytree-stats` better! 🚀
+```bash
+git clone https://github.com/JohannesL2/pytree-stats.git
+cd pytree-stats
+```
+
+### Set up a Virtual Environment & Dev Dependencies
+
+```bash
+python3 -m venv venv
+source venv/bin/activate # On Windows: venv\\Scripts\\activate
+pip install -e ".[dev]"
+```
+
+### Run Tests
+
+```bash
+pytest
+```
+
+### Open a Pull Request
+
+Create a new branch for your feature or bugfix and submit a PR!
+
+Check out open issues labeled good first issue to get started.
+
+## License
+
+This project is licensed under the MIT License.
